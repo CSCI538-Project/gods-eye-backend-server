@@ -182,9 +182,13 @@ class WsServer:
     def close_all_connections(self):
 
         for conn in self.conn_poll:
-            conn.sendall(b'End Connection')
-            self.conn_poll.remove(conn)
-            conn.close()
+            if conn:
+                try:
+                    conn.sendall(b'End Connection')
+                    self.conn_poll.remove(conn)
+                    conn.close()
+                except:
+                    print('Connection already done')
 
     # Return error message to client
     def error_res(self, conn, err_msg):
@@ -269,7 +273,11 @@ class WsServer:
             while self.is_running:
                 if self.eggshell.server.multihandler.victims_modify:
                     for conn in self.conn_poll:
-                        self.update_victim_info(conn)
+                        if conn:
+                            try:
+                                self.update_victim_info(conn)
+                            except:
+                                print('Error in sending update messages')
                     self.eggshell.server.multihandler.victims_modify = False
                 else:
                     time.sleep(3)
